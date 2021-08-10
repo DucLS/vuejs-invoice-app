@@ -24,11 +24,21 @@
         </div>
       </div>
     </div>
+    <div v-if="invoiceData.length">
+      <Invoice v-for="(invoice, index) in invoiceData" :invoice="invoice" :key="index" />
+    </div>
+    <div v-else class="empty flex flex-column">
+      <img src="@/assets/illustration-empty.svg" alt="" />
+      <h3>There is nothing here</h3>
+      <p>Create a new invoice by clicking the New Invoice button and get started</p>
+    </div>
   </div>
 </template>
 
 <script>
-import { mapMutations } from 'vuex';
+import { mapMutations, mapGetters } from 'vuex';
+import Invoice from '../components/Invoice';
+
 
 export default {
   name: "Home",
@@ -48,25 +58,27 @@ export default {
       this.TOGGLE_INVOICE();
     }
   },
-  components: {},
+  computed: {
+    ...mapGetters(['invoiceData']),
+  },
+  components: {
+    Invoice,
+  },
 };
 </script>
 
 <style scoped lang="scss">
 .home {
   color: #fff;
-
   .header {
     margin-bottom: 65px;
-
-    .left {
+    .left,
+    .right {
       flex: 1;
     }
     .right {
-      flex: 1;
       justify-content: flex-end;
       align-items: center;
-
       .button,
       .filter {
         align-items: center;
@@ -74,50 +86,37 @@ export default {
           font-size: 12px;
         }
       }
-
       .filter {
-        cursor: pointer;
         position: relative;
         margin-right: 40px;
-
-        span,
-        img {
-          pointer-events: none;
-        }
-
+        cursor: pointer;
         img {
           margin-left: 12px;
           width: 9px;
           height: 5px;
         }
-
         .filter-menu {
-          cursor: pointer;
           width: 120px;
           position: absolute;
           top: 25px;
           list-style: none;
           background-color: #1e2139;
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-
           li {
             cursor: pointer;
             font-size: 12px;
             padding: 10px 20px;
-
             &:hover {
-              color: #1e2139;;
+              color: #1e2139;
               background-color: #fff;
             }
           }
         }
       }
-
       .button {
         padding: 8px 10px;
         background-color: #7c5dfa;
         border-radius: 40px;
-
         .inner-button {
           margin-right: 8px;
           border-radius: 50%;
@@ -125,13 +124,31 @@ export default {
           align-items: center;
           justify-content: center;
           background-color: #fff;
-
           img {
             width: 10px;
             height: 10px;
           }
         }
       }
+    }
+  }
+  .empty {
+    margin-top: 160px;
+    align-items: center;
+    img {
+      width: 214px;
+      height: 200px;
+    }
+    h3 {
+      font-size: 20px;
+      margin-top: 40px;
+    }
+    p {
+      text-align: center;
+      max-width: 224px;
+      font-size: 12px;
+      font-weight: 300;
+      margin-top: 16px;
     }
   }
 }

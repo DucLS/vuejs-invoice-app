@@ -1,6 +1,7 @@
 <template>
   <div class="invoice-wrap flex flex-column" @click="checkClick" ref="invoiceWrap">
     <form @submit.prevent="submitForm" class="invoice-content">
+      <Loading v-show="isLoading" />
       <h1>New Invoice</h1>
       <div class="bill-from flex flex-column">
         <h4>Bill From</h4>
@@ -107,15 +108,15 @@
       </div>
       <div class="save flex">
         <div class="left">
-          <button class="red" @click="closeInvoice">
+          <button type="button" class="red" @click="closeInvoice">
             Cancel
           </button>
         </div>
         <div class="right flex">
-          <button class="dark-purple" @click="saveDraft">
+          <button type="submit" class="dark-purple" @click="saveDraft">
             Save Draft
           </button>
-          <button class="purple" @click="publishInvoice">
+          <button type="submit" class="purple" @click="publishInvoice">
             Create Invoice
           </button>
         </div>
@@ -128,9 +129,13 @@
 import { mapMutations } from "vuex";
 import { uid } from 'uid';
 import db from '../firebase/firebaseInit';
+import Loading from '../components/Loading';
 
 export default {
   name: "InvoiceModal",
+  components: {
+    Loading,
+  },
   data() {
     return {
       dateOptions: { year: 'numeric', month: 'short', day: 'numeric' },
@@ -154,6 +159,7 @@ export default {
       invoiceDraft: null,
       invoiceItemList: [],
       invoiceTotal: 0,
+      isLoading: null,
     }
   },
   created() {
@@ -161,7 +167,14 @@ export default {
     this.invoiceDate = new Date(this.invoiceDateUnix).toLocaleDateString('en-us', this.dateOptions);
   },
   methods: {
-    ...mapMutations(['TOGGLE_INVOICE']),
+    ...mapMutations(['TOGGLE_INVOICE', 'TOGGLE_MODAL']),
+
+    checkClick(e) {
+      if (e.target === this.$refs.invoiceWrap) {
+        this.TOGGLE_MODAL();
+      }
+    },
+
     closeInvoice() {
       this.TOGGLE_INVOICE();
     },
@@ -201,6 +214,8 @@ export default {
         return;
       }
 
+      this.isLoading = true;
+
       this.calInvoiceTotal()
 
       const database = db.collection('invoices').doc();
@@ -229,6 +244,8 @@ export default {
         invoiceDraft: this.invoiceDraft,
         invoicePaid: null,
       })
+
+      this.isLoading = false;
 
       this.TOGGLE_INVOICE();
     },
